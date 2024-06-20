@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:mp3_info/mp3_info.dart';
 import 'package:rxdart/rxdart.dart';
 
 export 'encrypted_audio_source.dart';
@@ -33,6 +34,12 @@ class EncryptedAudioSource extends StreamAudioSource {
   ///Start position for decrypted addition.
   ///Ex.: chunkFirstLength = 100, {startPosition: 0, endPosition: 99}, so next addition will be {startPosition: 100, endPosition: 200}
   int _decryptedOffset = 0;
+
+  late final StreamController<Duration> _durationController;
+  Stream<Duration> get totalDurationStream => _durationController.stream;
+
+  Duration? _totalDuration;
+  Duration? get totalDuration => _totalDuration;
   
   EncryptedAudioSource({
     required Stream<List<int>> encryptedStream,
@@ -49,11 +56,11 @@ class EncryptedAudioSource extends StreamAudioSource {
         final decrypted = _decrypter.call(bytes);
         _decryptedBytes.addAll(decrypted);
       })
-      .doOnDone(_closeStream)
+      .doOnDone(() => _finish())
       .doOnError((error, stackTrace) async {
-        debugPrint(error.toString());
+        debugPrint("[$EncryptedAudioSource] - Error: ${error.toString()}");
         debugPrint(stackTrace.toString());
-        await _closeStream();
+        await _finish();
       })
       .asBroadcastStream();
 
@@ -68,6 +75,8 @@ class EncryptedAudioSource extends StreamAudioSource {
         });
       },
     );
+
+    _durationController = StreamController<Duration>.broadcast();
   }
 
   void _addOnController() {
@@ -75,10 +84,15 @@ class EncryptedAudioSource extends StreamAudioSource {
     _decryptedOffset = _decryptedBytes.length;
   }
 
-  Future<void> _closeStream() async {
+  Future<void> _finish() async {
+    MP3Info info = MP3Processor.fromBytes(Uint8List.fromList(_decryptedBytes));
+    _durationController.add(info.duration);
+    _totalDuration = info.duration;
+
     await Future<void>.delayed(const Duration(milliseconds: 3000));
     _decryptionController.close();
-    debugPrint("[$EncryptedAudioSource] - Decryption stream was closed");
+    _durationController.close();
+    debugPrint("[$EncryptedAudioSource] - Finished");
   }
 
   @override

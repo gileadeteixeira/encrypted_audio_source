@@ -23,10 +23,13 @@ void main() async {
 
   final player = CoreAudioService.audioHandler.player;
 
-  await player.setAudioSource(myCustomSource);
+  await player.setAudioSource(
+    myCustomSource,
+    customDurationStream: myCustomSource.totalDurationStream
+  );
 
   Future.delayed(
-    const Duration(seconds: 3),
+    const Duration(milliseconds: 500),
     player.play
   );
 

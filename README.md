@@ -52,6 +52,9 @@ final myCustomSource = EncryptedAudioSource(
 );
 
 player.setAudioSource(myCustomSource);
+
+/// You can handle the delayed duration result through [myCustomSource.totalDurationStream]
+
 // [...]
 ```
 

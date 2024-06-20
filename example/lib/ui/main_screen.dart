@@ -53,7 +53,8 @@ class MainScreen extends StatelessWidget {
               builder: (context, snapshot) {
                 final mediaState = snapshot.data;
                 return SeekBar(
-                  duration: mediaState?.mediaItem?.duration ?? Duration.zero,
+                  // duration: mediaState?.mediaItem?.duration ?? Duration.zero,
+                  duration: _audioHandler.player.duration ?? Duration.zero,
                   position: mediaState?.position ?? Duration.zero,
                   onChangeEnd: (newPosition) {
                     _audioHandler.seek(newPosition);

@@ -1,12 +1,23 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:example/core/core_audio_player.dart';
 import 'package:just_audio/just_audio.dart';
 
 class CoreAudioPlayerHandler extends BaseAudioHandler with SeekHandler {
-  late final AudioPlayer player;
+  late final CoreAudioPlayer player;
 
   CoreAudioPlayerHandler() {
-    player = AudioPlayer();
+    player = CoreAudioPlayer();
     player.playbackEventStream.map(_transformEvent).pipe(playbackState);
+    player.durationStream.listen((duration) {
+      mediaItem.add(MediaItem(
+        id: "audio-1",
+        title: "Ocean Breeze Beat",
+        album: "Pixabay Samples",
+        artist: "JTWAYNE",
+        artUri: Uri.parse("https://cdn.pixabay.com/audio/2024/05/29/21-39-37-801_200x200.jpg"),
+        duration: duration
+      ));
+    });
   }
 
   @override
