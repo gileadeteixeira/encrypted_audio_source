@@ -6,6 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
 
+export 'encrypted_audio_source.dart';
+
 class EncryptedAudioSource extends StreamAudioSource {
   ///Decryption function
   final List<int> Function(List<int> encrypted) _decrypter;
