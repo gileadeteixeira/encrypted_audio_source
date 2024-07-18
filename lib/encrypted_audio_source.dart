@@ -1,6 +1,7 @@
 library encrypted_audio_source;
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
@@ -24,7 +25,7 @@ class EncryptedAudioSource extends StreamAudioSource {
   ///The base stream, where encrypted bytes are received. Typically a streamed response
   late final Stream<List<int>> _encrytedStream;
 
-  ///Accumulator for decrypted bytes. The [_decryptedStream] is internally listened after a delay.
+  ///Accumulator for decrypted bytes. The [decryptedStream] is internally listened after a delay.
   ///So, to workaround this behavior, the current accumulation will be immediately sent on first listen, and
   ///then the next bytes will be added.
   final List<int> _decryptedBytes = [];
@@ -97,7 +98,8 @@ class EncryptedAudioSource extends StreamAudioSource {
 
   @override
   Future<StreamAudioResponse> request([int? start, int? end]) async {
-    final length = _sourceLength ?? _decryptedBytes.length;
+    // final length = _sourceLength ?? _decryptedBytes.length;
+    final length = _decryptedBytes.length;
 
     start ??= 0;
     end ??= length;
@@ -106,8 +108,12 @@ class EncryptedAudioSource extends StreamAudioSource {
       sourceLength: length,
       // contentLength: end - start,
       contentLength: -1,
-      offset: start,
-      stream: _decryptedStream,
+      // offset: start,
+      offset: null,
+      // stream: _decryptedStream,
+      stream: _decryptedBytes.isEmpty
+        ? _decryptedStream
+        : (Platform.isIOS ? _decryptedStream : Stream.value(_decryptedBytes.sublist(start, end))),
       contentType: _contentType,
     );
   }
