@@ -28,3 +28,31 @@ class CoreEncrypter {
     return myDecrypter.process(en.bytes);
   }
 }
+
+class TesteEncrypter {
+  static final key = enc.Key.fromUtf8("Vi9CbjJhVkVBcDNv"); //AES-128
+  static final iv = enc.IV.fromUtf8("N0poeHJacXV0NFd3");
+  // static final key = enc.Key.fromSecureRandom(16); //AES-128
+  // static final iv = enc.IV.fromSecureRandom(16);
+
+  TesteEncrypter();
+
+  final encrypter = enc.Encrypter(
+    enc.AES(key, mode: enc.AESMode.ctr, padding: null)
+  );
+
+  final decrypter = pc.CTRStreamCipher(pc.AESEngine())
+    ..init(false, pc.ParametersWithIV(
+      pc.KeyParameter(key.bytes),
+      iv.bytes
+    ));  
+
+  List<int> encrypt(List<int> bytes) {
+    return encrypter.encryptBytes(bytes, iv: iv).bytes;
+  }
+
+  List<int> decrypt(List<int> encryptedBytes) {
+    enc.Encrypted en = enc.Encrypted(Uint8List.fromList(encryptedBytes));
+    return decrypter.process(en.bytes);
+  }
+}

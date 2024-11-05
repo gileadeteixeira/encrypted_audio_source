@@ -3,11 +3,13 @@ import 'package:example/core/core_audio_player.dart';
 import 'package:just_audio/just_audio.dart';
 
 class CoreAudioPlayerHandler extends BaseAudioHandler with SeekHandler {
-  late final CoreAudioPlayer player;
+  // late final CoreAudioPlayer player;
+  late final AudioPlayer player;
 
   CoreAudioPlayerHandler() {
-    player = CoreAudioPlayer();
-    player.playbackEventStream.map(_transformEvent).pipe(playbackState);
+    player = AudioPlayer();
+    player.playbackEventStream.map(_transformPlaybackEvent).pipe(playbackState);
+    player.processingStateStream.listen(_onProcessingStateChanged);
     player.durationStream.listen((duration) {
       mediaItem.add(MediaItem(
         id: "audio-1",
@@ -21,7 +23,12 @@ class CoreAudioPlayerHandler extends BaseAudioHandler with SeekHandler {
   }
 
   @override
-  Future<void> play() => player.play();
+  Future<void> play() async {
+    if (player.playerState.processingState == ProcessingState.completed) {
+      await seek(Duration.zero);
+    }
+    return player.play();
+  }
 
   @override
   Future<void> pause() => player.pause();
@@ -30,9 +37,16 @@ class CoreAudioPlayerHandler extends BaseAudioHandler with SeekHandler {
   Future<void> seek(Duration position) => player.seek(position);
 
   @override
-  Future<void> stop() => player.stop();
+  Future<void> stop() async {
+    await player.pause();
+    return player.stop();
+  }
 
-  PlaybackState _transformEvent(PlaybackEvent event) {
+  void _onProcessingStateChanged(ProcessingState state) {
+    if (state == ProcessingState.completed) pause();
+  }
+
+  PlaybackState _transformPlaybackEvent(PlaybackEvent event) {
     return PlaybackState(
       controls: [
         MediaControl.rewind,
