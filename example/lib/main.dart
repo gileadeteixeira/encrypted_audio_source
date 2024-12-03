@@ -1,5 +1,5 @@
+import 'package:encrypted_audio_source/custom_audio_source.dart';
 import 'package:encrypted_audio_source/encrypted_audio_source.dart';
-import 'package:encrypted_audio_source/teste.dart';
 import 'package:example/core/core_audio_player_service.dart';
 import 'package:example/core/core_encrypter.dart';
 import 'package:example/ui/main_screen.dart';
@@ -11,14 +11,7 @@ void main() async {
   await CoreAudioService.instance.initialize();
 
   const url = "https://github.com/App2Sales/samples/raw/main/encrypted_example.mp3.aes";
-  // const url = "https://raw.githubusercontent.com/App2Sales/samples/main/encrypted_example.mp3.aes";
   // const url = "https://dovetail.prxu.org/70/66673fd4-6851-4b90-a762-7c0538c76626/CoryCombs_2021T_VO_Intro.mp3";
-
-  Future<http.StreamedResponse> generator() async {
-    final uri = Uri.parse(url);
-    final request = http.Request('GET', uri);
-    return await request.send();
-  }
 
   // final myCustomSource = EncryptedAudioSource(
   //   generator: generator,
