@@ -10,7 +10,7 @@ import 'package:just_audio/just_audio.dart';
 void main() async {
   await CoreAudioService.instance.initialize();
 
-  const url = "https://github.com/App2Sales/samples/raw/main/encrypted_example.mp3.aes";
+  const url = "https://github.com/gileadeteixeira/samples/raw/refs/heads/develop/encrypted_example.mp3.aes";
   // const url = "https://dovetail.prxu.org/70/66673fd4-6851-4b90-a762-7c0538c76626/CoryCombs_2021T_VO_Intro.mp3";
 
   // final myCustomSource = EncryptedAudioSource(
